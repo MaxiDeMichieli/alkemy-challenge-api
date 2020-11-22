@@ -49,14 +49,31 @@ const usersController = {
                     return res.status(400).json({error: 'Incorrect or expired link'})
                 }
                 const {first_name, last_name, email, password} = decodedToken;
-                db.Users.create({
-                    first_name: first_name.trim(),
-                    last_name: last_name.trim(),
-                    email: email.trim(),
-                    password: bcrypt.hashSync(password, 12),
+                db.Users.findOrCreate({
+                    where: {
+                        email: email,
+                        social_id: null
+                    },
+                    defaults: {
+                        first_name: first_name.trim(),
+                        last_name: last_name.trim(),
+                        email: email.trim(),
+                        password: bcrypt.hashSync(password, 12),
+                    }
                 })
-                .then(() => {
-                    return res.status(200).json({status: 200, message: 'Account activated successfully'})
+                .then((user) => {
+                    let userActivate = {
+                        status: 200,
+                        message: 'Account activated successfully',
+                        user: {first_name, last_name, email}
+                    }
+                    if(user[1]) {
+                        return res.status(200).json(userActivate)
+                    } else {
+                        userActivate.message = 'This account had already been activated';
+                        userActivate.status = 400;
+                        return res.status(400).json(userActivate)
+                    }
                 })
                 .catch((err) => {
                     return res.status(200).json({status: 200, message: 'Error activating account', error: err})

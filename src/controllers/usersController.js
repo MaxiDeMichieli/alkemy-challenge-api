@@ -1,12 +1,13 @@
 const db = require('../database/models');
+const {Op} = require("sequelize");
 const bcrypt = require('bcrypt');
 const {validationResult} = require('express-validator');
 const jwt = require('jsonwebtoken');
-const process = require('process')
+const process = require('process');
 const nodemailerTransporter = require('../functions/nodemailerTransporter');
 
 const usersController = {
-    signup: (req, res) => {
+    signUp: (req, res) => {
         const {first_name, last_name, email, password} = req.body;
         let errors = validationResult(req);
         if(errors.isEmpty()){
@@ -187,6 +188,37 @@ const usersController = {
             })
         } else {
             return res.status(401).json({status: 401, error: 'Authentication error.'})
+        }
+    },
+    logIn: (req, res) => {
+        let errors = validationResult(req);
+        const {email} = req.body;
+
+        if(errors.isEmpty()) {
+            db.Users.findOne({
+                where: {
+                    email: email,
+                    password: {[Op.not]: null}
+                }
+            })
+            .then(user => {
+                if(user == null) {
+                    return res.status(400).json({status: 400, error: 'User not found'});
+                }
+                const {id, first_name, last_name, email, password} = user;
+                const token = jwt.sign({id, first_name, last_name, email, password}, process.env.USER_TOKEN_KEY, {expiresIn: '14d'});
+                return res.status(200).json({status: 200, token: token});
+            })
+            .catch(err => {
+                return res.status(400).json({error: err});
+            })
+        } else {
+            let response = {
+                status: 400,
+                errors: errors.mapped(),
+                oldData: req.body
+            }
+            res.status(400).json(response);
         }
     }
 }

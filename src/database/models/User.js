@@ -2,30 +2,34 @@ module.exports = function(sequelize, dataTypes){
     let alias = 'Users';
 
     let cols= {
-        id:{
-            type:dataTypes.INTEGER(11),
-            primaryKey:true,
-            autoIncrement:true,
-            allowNull:false
+        id: {
+            type: dataTypes.INTEGER(11),
+            primaryKey: true,
+            autoIncrement: true,
+            allowNull: false
         },
-        first_name:{
-            type:dataTypes.STRING(45),
-            allowNull:false
+        first_name: {
+            type: dataTypes.STRING(45),
+            allowNull: false
         },
-        last_name:{
-            type:dataTypes.STRING(45),
-            allowNull:false
+        last_name: {
+            type: dataTypes.STRING(45),
+            allowNull: false
         },
-        email:{
-            type:dataTypes.STRING(60),
-            allowNull:false
+        email: {
+            type: dataTypes.STRING(60),
+            allowNull: false
         },
-        password:{
-            type:dataTypes.STRING(70),
+        password: {
+            type: dataTypes.STRING(70),
             defaultValue: null
         },
         social_id: {
-            type:dataTypes.STRING(60),
+            type: dataTypes.STRING(60),
+            defaultValue: null
+        },
+        reset_link: {
+            type: dataTypes.STRING(150),
             defaultValue: null
         }
     }

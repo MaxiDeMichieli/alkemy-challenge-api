@@ -1,5 +1,6 @@
 const {check, body} = require('express-validator');
 const db = require('../database/models');
+const regExPass = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,}$/;
 
 module.exports = [
     check('first_name')
@@ -29,8 +30,10 @@ module.exports = [
         }),
 
     check('password')
-        .isLength({min:6, max:100})
-        .withMessage('La contraseña debe tener al menos 6 caracteres'),
+        .custom(function(value) {
+            return regExPass.test(value)
+        })
+        .withMessage('La contraseña debe tener: al menos 6 caracteres, una mayúscula, una minúscula y un número'),
 
     body('passwordRepeat')
         .custom(function(value,{req}){

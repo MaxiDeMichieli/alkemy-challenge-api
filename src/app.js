@@ -1,6 +1,8 @@
 const express = require('express');
 const logger = require('morgan');
-const {err404, errHandler} = require('./middleware/errors')
+const cors = require('cors');
+require('dotenv').config();
+const {err404, errHandler} = require('./middleware/errors');
 
 const usersRouter = require('./routes/users');
 const operationsRouter = require('./routes/operations');
@@ -9,6 +11,7 @@ const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/api/users', usersRouter);

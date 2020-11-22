@@ -5,5 +5,6 @@ exports.err404 = (req, res, next) => {
 }
 
 exports.errHandler = (err, req, res, next) => {
-    res.status(err.status || 500).json(err)
+    res.status(err.status || 500);
+    res.json(err);
 }

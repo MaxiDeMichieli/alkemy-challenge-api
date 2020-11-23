@@ -77,7 +77,7 @@ const usersController = {
                     }
                 })
                 .catch((err) => {
-                    return res.status(200).json({status: 200, message: 'Error activating account', error: err})
+                    return res.status(400).json({status: 400, message: 'Error activating account', error: err})
                 })
 
             })
@@ -131,7 +131,7 @@ const usersController = {
             })
         })
     },
-    resetPasswordTokenCheck: (req, res) => {
+    resetPasswordCheckToken: (req, res) => {
         const {resetLink} = req.body;
         jwt.verify(resetLink, process.env.RESET_PASSWORD_KEY, (err, decodedData) => {
             if(err) {
@@ -205,8 +205,8 @@ const usersController = {
                 if(user == null) {
                     return res.status(400).json({status: 400, error: 'User not found'});
                 }
-                const {id, first_name, last_name, email, password} = user;
-                const token = jwt.sign({id, first_name, last_name, email, password}, process.env.USER_TOKEN_KEY, {expiresIn: '14d'});
+                const {id, first_name, last_name, email, password, social_id} = user;
+                const token = jwt.sign({id, first_name, last_name, email, password, social_id}, process.env.USER_TOKEN_KEY, {expiresIn: '14d'});
                 return res.status(200).json({status: 200, token: token});
             })
             .catch(err => {
@@ -220,6 +220,34 @@ const usersController = {
             }
             res.status(400).json(response);
         }
+    },
+    checkToken: (req, res) => {
+        const {token} = req.body;
+        jwt.verify(token, process.env.USER_TOKEN_KEY, (err, decodedToken) => {
+            if(err) {
+                return res.status(401).json({error: 'Incorrect or expired token'})
+            }
+            const{id, first_name, last_name, email, password, social_id} = decodedToken;
+            db.Users.findOne({
+                where: {
+                    id: id,
+                    first_name: first_name,
+                    last_name: last_name,
+                    email: email,
+                    password: password,
+                    social_id: social_id
+                }
+            })
+            .then((user) => {
+                if(user == null) {
+                    res.status(401).json({status: 401, error: 'Incorrect or expired token'});
+                }
+                res.status(200).json({status: 200, message: 'Valid token.', token: token});
+            })
+            .catch((err) => {
+                return res.status(400).json({status: 400, message: 'Error verifying token', error: err})
+            })
+        })
     }
 }
 

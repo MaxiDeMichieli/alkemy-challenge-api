@@ -12,9 +12,12 @@ router.post('/email-activate', usersController.activateAccount);
 /* LOGIN */
 router.post('/login', logInValidations, usersController.logIn);
 
+/* CHECK TOKEN */
+router.post('/check-token', usersController.checkToken);
+
 /* RESET PASS */
 router.patch('/forgot-password', usersController.forgotPassword);
 router.patch('/reset-password', resetPasswordValidations, usersController.resetPassword);
-router.post('/reset-password/token-check', usersController.resetPasswordTokenCheck);
+router.post('/reset-password/check-token', usersController.resetPasswordCheckToken);
 
 module.exports = router;

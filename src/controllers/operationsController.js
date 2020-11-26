@@ -2,7 +2,7 @@ const db = require('../database/models');
 const {validationResult} = require('express-validator');
 
 const operationsController = {
-    create: (req, res) => {
+    createOp: (req, res) => {
         const {id} = req.user;
         const {concept, amount, date, type} = req.body;
         let errors = validationResult(req);
@@ -112,7 +112,7 @@ const operationsController = {
             return res.status(500).json({error: 'Server error'})
         })
     },
-    edit: (req, res) => {
+    editOp: (req, res) => {
         let errors = validationResult(req);
 
         if(!errors.isEmpty()) {
@@ -141,6 +141,26 @@ const operationsController = {
                 return res.status(400).json({err: 'There is no operation with that id or you did not make any changes'})
             } else {
                 return res.status(200).json({error: null, message: 'Changes made successfully'})
+            }
+        })
+        .catch(err => {
+            return res.status(500).json({error: 'Server error'})
+        })
+    },
+    deleteOp: (req, res) => {
+        const idParams = req.params.id;
+        const {id} = req.user;
+
+        db.Operations.destroy({
+            where:{
+            id: idParams,
+            user_id: id
+        }})
+        .then(result => {
+            if(result == 1) {
+                return res.status(200).json({error: null, message: 'Operation removed successfully.'})
+            } else {
+                return res.status(400).json({error: 'There is no operation with that id.'})
             }
         })
         .catch(err => {

@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const {create, listAll, listOne, edit} = require('../controllers/operationsController');
+const {createOp, listAll, listOne, editOp, deleteOp} = require('../controllers/operationsController');
 const {isAuth} = require('../middleware/auth');
 const createValidations = require('../validations/createOperationValidations');
 const editValidations = require('../validations/editOperationValidations');
 
 /* CREATE OPERATIONS */
-router.post('/create', isAuth, createValidations, create);
+router.post('/create', isAuth, createValidations, createOp);
 
 /* LIST ALL OPERATIONS */
 router.get('/list', isAuth, listAll);
@@ -15,7 +15,10 @@ router.get('/list', isAuth, listAll);
 router.get('/list/:id', isAuth, listOne);
 
 /* EDIT OPERATION */
-router.patch('/edit/:id', isAuth, editValidations, edit);
+router.patch('/edit/:id', isAuth, editValidations, editOp);
+
+/* DELETE OPERATION */
+router.delete('/delete/:id', isAuth, deleteOp);
 
 
 module.exports = router;

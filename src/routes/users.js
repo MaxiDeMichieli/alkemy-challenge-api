@@ -1,23 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const usersController = require('../controllers/usersController');
+const {signUp, activateAccount, logIn, checkToken, forgotPassword, resetPassword, resetPasswordCheckToken} = require('../controllers/usersController');
 const signUpValidations = require('../validations/signUpValidations');
 const logInValidations = require('../validations/logInValidations');
 const resetPasswordValidations = require('../validations/resetPasswordValidations');
 
 /* SIGNUP */
-router.post('/signup', signUpValidations, usersController.signUp);
-router.post('/email-activate', usersController.activateAccount);
+router.post('/signup', signUpValidations, signUp);
+router.post('/email-activate', activateAccount);
 
 /* LOGIN */
-router.post('/login', logInValidations, usersController.logIn);
+router.post('/login', logInValidations, logIn);
 
 /* CHECK TOKEN */
-router.post('/check-token', usersController.checkToken);
+router.post('/check-token', checkToken);
 
 /* RESET PASS */
-router.patch('/forgot-password', usersController.forgotPassword);
-router.patch('/reset-password', resetPasswordValidations, usersController.resetPassword);
-router.post('/reset-password/check-token', usersController.resetPasswordCheckToken);
+router.patch('/forgot-password', forgotPassword);
+router.patch('/reset-password', resetPasswordValidations, resetPassword);
+router.post('/reset-password/check-token', resetPasswordCheckToken);
 
 module.exports = router;

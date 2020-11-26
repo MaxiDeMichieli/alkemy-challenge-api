@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const operationsController = require('../controllers/operationsController');
+const {create, listAll} = require('../controllers/operationsController');
 const {isAuth} = require('../middleware/auth');
 const createOperationValidations = require('../validations/createOperationValidations');
 
 /* CREATE OPERATIONS */
-router.post('/create', isAuth, createOperationValidations, operationsController.create);
+router.post('/create', isAuth, createOperationValidations, create);
 
 /* LIST ALL OPERATIONS */
-router.get('/list', isAuth, operationsController.listAll);
+router.get('/list', isAuth, listAll);
 
 
 module.exports = router;

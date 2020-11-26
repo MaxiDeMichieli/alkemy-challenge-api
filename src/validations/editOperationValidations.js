@@ -29,11 +29,5 @@ module.exports = [
 
     check('date')
         .isLength({min:1})
-        .withMessage('La fecha es obligatoria.'),
-
-    check('type')
-        .custom(value => {
-            return value == 1 || value == 2 ? true : false;
-        })
-        .withMessage('Selecciona un tipo de operación.')
+        .withMessage('La fecha es obligatoria.')
 ]

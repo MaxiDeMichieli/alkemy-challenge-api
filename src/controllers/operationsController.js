@@ -8,7 +8,7 @@ const operationsController = {
         let errors = validationResult(req);
 
         if(!errors.isEmpty()) {
-            return res.status(400).json({error: 'Validations errors', ...errors})
+            return res.status(400).json({error: 'Validations errors', errors: errors.mapped()})
         }
 
         db.Operations.create({
@@ -42,8 +42,8 @@ const operationsController = {
             where: {
                 user_id: id
             },
-            offset: offset,
-            limit: limit,
+            offset,
+            limit,
             order: [
                 ['date', 'DESC']
             ],
@@ -78,13 +78,15 @@ const operationsController = {
         })
     },
     listOne: (req, res) => {
-        let id = Number(req.params.id);
-        if(isNaN(id)) {
+        const {id} = req.user;
+        let idParam = Number(req.params.id);
+        if(isNaN(idParam)) {
             return res.status(400).json({error: 'Id must be a number'})
         }
         db.Operations.findOne({
             where: {
-                id: id
+                id: idParam,
+                user_id: id
             },
             include: [
                 {association: 'type'}
@@ -105,6 +107,41 @@ const operationsController = {
             }
 
             return res.status(200).json({error: null, operation})
+        })
+        .catch(err => {
+            return res.status(500).json({error: 'Server error'})
+        })
+    },
+    edit: (req, res) => {
+        let errors = validationResult(req);
+
+        if(!errors.isEmpty()) {
+            return res.status(400).json({error: 'Validations errors', errors: errors.mapped()})
+        }
+
+        const {concept, amount, date} = req.body;
+        const {id} = req.user;
+        const idParams = Number(req.params.id);
+        if(isNaN(idParams)) {
+            return res.status(400).json({error: 'Id must be a number'})
+        }
+
+        db.Operations.update({
+            concept: concept.trim(),
+            amount: parseInt(amount),
+            date: date,
+        }, {
+            where: {
+                id: idParams,
+                user_id: id
+            }
+        })
+        .then(result => {
+            if(result[0] == 0) {
+                return res.status(400).json({err: 'There is no operation with that id or you did not make any changes'})
+            } else {
+                return res.status(200).json({error: null, message: 'Changes made successfully'})
+            }
         })
         .catch(err => {
             return res.status(500).json({error: 'Server error'})

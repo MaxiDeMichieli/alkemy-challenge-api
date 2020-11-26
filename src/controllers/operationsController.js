@@ -27,13 +27,16 @@ const operationsController = {
     },
     listAll: (req, res) => {
         const {id} = req.user;
-        let {limit, offset} = req.query;
+        let {limit, offset, type} = req.query;
         limit = isNaN(Number(limit)) ? undefined : Number(limit);
         offset = isNaN(Number(offset)) ? undefined : Number(offset);
         if(limit == undefined || offset == undefined) {
             return res.status(400).json({error:'you must set a limit and an offset in the query string'})
         }
         let nextPage = offset + limit;
+        if(type != undefined) {
+            type = {name: type}
+        }
 
         db.Operations.findAll({
             where: {
@@ -45,7 +48,9 @@ const operationsController = {
                 ['date', 'DESC']
             ],
             include: [
-                {association: 'type'}
+                {association: 'type',
+                where: type
+            }
             ]
         })
         .then(operations => {
@@ -62,7 +67,7 @@ const operationsController = {
             let response = {
                 error: null,
                 nextPage: `${req.protocol}://${req.get('host')}/api/operations/list?limit=${limit}&offset=${nextPage}`,
-                operationsMapped
+                opearations: operationsMapped
             }
             return res.status(200).json(response)
         })

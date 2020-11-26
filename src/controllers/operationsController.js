@@ -56,11 +56,13 @@ const operationsController = {
         .then(operations => {
             let operationsMapped = operations.map(op => {
                 return {
+                    id: op.id,
                     concept: op.concept,
                     amount: op.amount,
                     date: op.date,
                     user: op.user_id,
-                    type: op.type.name
+                    type: op.type.name,
+                    url: `${req.protocol}://${req.get('host')}/api/operations/list/${op.id}`
                 }
             })
 
@@ -70,6 +72,39 @@ const operationsController = {
                 opearations: operationsMapped
             }
             return res.status(200).json(response)
+        })
+        .catch(err => {
+            return res.status(500).json({error: 'Server error'})
+        })
+    },
+    listOne: (req, res) => {
+        let id = Number(req.params.id);
+        if(isNaN(id)) {
+            return res.status(400).json({error: 'Id must be a number'})
+        }
+        db.Operations.findOne({
+            where: {
+                id: id
+            },
+            include: [
+                {association: 'type'}
+            ]
+        })
+        .then(operation => {
+            if(operation == null) {
+                return res.status(400).json({error: 'There is no operation with that id'})
+            }
+            operation = {
+                id: operation.id,
+                concept: operation.concept,
+                amount: operation.amount,
+                date: operation.date,
+                user: operation.user_id,
+                type: operation.type.name,
+                editUrl: `${req.protocol}://${req.get('host')}/api/operations/edit/${operation.id}`
+            }
+
+            return res.status(200).json({error: null, operation})
         })
         .catch(err => {
             return res.status(500).json({error: 'Server error'})

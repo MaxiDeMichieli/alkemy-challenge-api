@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {create, listAll} = require('../controllers/operationsController');
+const {create, listAll, listOne} = require('../controllers/operationsController');
 const {isAuth} = require('../middleware/auth');
 const createOperationValidations = require('../validations/createOperationValidations');
 
@@ -9,6 +9,9 @@ router.post('/create', isAuth, createOperationValidations, create);
 
 /* LIST ALL OPERATIONS */
 router.get('/list', isAuth, listAll);
+
+/* LIST ONE OPERATION */
+router.get('/list/:id', isAuth, listOne)
 
 
 module.exports = router;

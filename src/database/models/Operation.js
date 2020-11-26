@@ -39,7 +39,7 @@ module.exports = function(sequelize, dataTypes){
 
     Operation.associate = (modelos) => {
         Operation.belongsTo(modelos.TypeOfOperations, {
-            as:'typeOfOperations',
+            as:'type',
             foreignKey:'type_id'
         })
         Operation.belongsTo(modelos.Users, {

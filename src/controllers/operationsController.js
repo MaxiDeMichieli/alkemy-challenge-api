@@ -8,7 +8,7 @@ const operationsController = {
         let errors = validationResult(req);
 
         if(!errors.isEmpty()) {
-            return res.status(400).json({status:400, ...errors})
+            return res.status(400).json({error: 'Validations errors', ...errors})
         }
 
         db.Operations.create({
@@ -19,10 +19,55 @@ const operationsController = {
             user_id: id
         })
         .then(result => {
-            res.status(200).json({status:200, ...result});
+            res.status(200).json({error: null, ...result});
         })
         .catch(err => {
-            res.json(err)
+            res.status(500).json({error: 'Server error'})
+        })
+    },
+    listAll: (req, res) => {
+        const {id} = req.user;
+        let {limit, offset} = req.query;
+        limit = isNaN(Number(limit)) ? undefined : Number(limit);
+        offset = isNaN(Number(offset)) ? undefined : Number(offset);
+        if(limit == undefined || offset == undefined) {
+            return res.status(400).json({error:'you must set a limit and an offset in the query string'})
+        }
+        let nextPage = offset + limit;
+
+        db.Operations.findAll({
+            where: {
+                user_id: id
+            },
+            offset: offset,
+            limit: limit,
+            order: [
+                ['date', 'DESC']
+            ],
+            include: [
+                {association: 'type'}
+            ]
+        })
+        .then(operations => {
+            let operationsMapped = operations.map(op => {
+                return {
+                    concept: op.concept,
+                    amount: op.amount,
+                    date: op.date,
+                    user: op.user_id,
+                    type: op.type.name
+                }
+            })
+
+            let response = {
+                error: null,
+                nextPage: `${req.protocol}://${req.get('host')}/api/operations/list?limit=${limit}&offset=${nextPage}`,
+                operationsMapped
+            }
+            return res.status(200).json(response)
+        })
+        .catch(err => {
+            return res.status(500).json({error: 'Server error'})
         })
     }
 }

@@ -24,10 +24,10 @@ const usersController = {
             }
             nodemailerTransporter.sendMail(mailOptions, (err, data) => {
                 if(err){
-                    res.status(400).json(err)
+                    res.status(400).json({error: 'Error sending email'})
                 }else{
                     let response = {
-                        status: 200,
+                        error: null,
                         message: 'Email sent, verify your account'
                     }
                     res.status(200).json(response)
@@ -35,7 +35,7 @@ const usersController = {
             });
         }else{
             let response = {
-                status: 400,
+                error: 'Validations errors',
                 errors: errors.mapped(),
                 oldData: req.body
             }
@@ -64,7 +64,7 @@ const usersController = {
                 })
                 .then((user) => {
                     let userActivate = {
-                        status: 200,
+                        error: null,
                         message: 'Account activated successfully',
                         user: {first_name, last_name, email}
                     }
@@ -72,17 +72,17 @@ const usersController = {
                         return res.status(200).json(userActivate)
                     } else {
                         userActivate.message = 'This account had already been activated';
-                        userActivate.status = 400;
+                        userActivate.error = 'This account had already been activated';
                         return res.status(400).json(userActivate)
                     }
                 })
                 .catch((err) => {
-                    return res.status(400).json({status: 400, message: 'Error activating account', error: err})
+                    return res.status(500).json({error: 'Server error', message: 'Error activating account'})
                 })
 
             })
         } else {
-            return res.json({error: 'Something went wrong!!'})
+            return res.json({error: 'Something went wrong'})
         }
     },
     forgotPassword: (req, res) => {
@@ -95,7 +95,7 @@ const usersController = {
         })
         .then(user => {
             if(user == null) {
-                return res.status(400).json({status: 400, message: 'User with this email does not exists'});
+                return res.status(400).json({error: 'User with this email does not exists'});
             }
             const token = jwt.sign({id: user.id}, process.env.RESET_PASSWORD_KEY, {expiresIn: '20m'});
             let mailOptions = {
@@ -117,17 +117,17 @@ const usersController = {
             .then(() => {
                 nodemailerTransporter.sendMail(mailOptions, (err, data) => {
                     if(err){
-                        return res.status(400).json({message: err})
+                        return res.status(400).json({error: 'Error sending email'})
                     }
                     let response = {
-                        status: 200,
+                        error: null,
                         message: 'Email sent, follow the instructions'
                     }
                     return res.status(200).json(response)
                 });
             })
             .catch(err => {
-                res.status(400).json({message: err})
+                res.status(500).json({error: 'Server error'})
             })
         })
     },
@@ -135,9 +135,9 @@ const usersController = {
         const {resetLink} = req.body;
         jwt.verify(resetLink, process.env.RESET_PASSWORD_KEY, (err, decodedData) => {
             if(err) {
-                return res.status(401).json({status: 401, error: 'Incorrect token or it is expired.'})
+                return res.status(401).json({error: 'Incorrect token or it is expired.'})
             }
-            return res.status(200).json({status: 200, message: 'Valid token.'})
+            return res.status(200).json({error: null, message: 'Valid token.'})
         })
     },
     resetPassword: (req, res) => {
@@ -146,7 +146,7 @@ const usersController = {
 
         if(!errors.isEmpty()) {
             let response = {
-                status: 400,
+                error: 'Validations errors',
                 errors: errors.mapped(),
                 oldData: req.body
             }
@@ -156,7 +156,7 @@ const usersController = {
         if(resetLink) {
             jwt.verify(resetLink, process.env.RESET_PASSWORD_KEY, (err, decodedData) => {
                 if(err) {
-                    return res.status(401).json({status: 401, error: 'Incorrect token or it is expired.'})
+                    return res.status(401).json({error: 'Incorrect token or it is expired.'})
                 }
                 db.Users.findOne({
                     where: {
@@ -165,7 +165,7 @@ const usersController = {
                 })
                 .then(user => {
                     if(user == null) {
-                        return res.status(400).json({status: 400, error: 'User with this token does not exist'})
+                        return res.status(400).json({error: 'User with this token does not exist'})
                     }
                     db.Users.update({
                         reset_link: null,
@@ -176,18 +176,18 @@ const usersController = {
                         }
                     })
                     .then(user => {
-                        return res.status(200).json({status: 200, message: 'Your password has been updated'})
+                        return res.status(200).json({error: null, message: 'Your password has been updated'})
                     })
                     .catch(err => {
-                        return res.status(400).json({status: 400, error: 'Reset password error'})
+                        return res.status(500).json({error: 'Server error'})
                     })
                 })
                 .catch(err => {
-                    res.status(400).json({status: 400, error: err})
+                    res.status(500).json({error: 'Server error'})
                 })
             })
         } else {
-            return res.status(401).json({status: 401, error: 'Authentication error.'})
+            return res.status(401).json({error: 'Authentication error.'})
         }
     },
     logIn: (req, res) => {
@@ -203,18 +203,19 @@ const usersController = {
             })
             .then(user => {
                 if(user == null) {
-                    return res.status(400).json({status: 400, error: 'User not found'});
+                    return res.status(400).json({error: 'User not found'});
                 }
                 const {id, first_name, last_name, email, password, social_id} = user;
                 const token = jwt.sign({id, first_name, last_name, email, password, social_id}, process.env.USER_TOKEN_KEY, {expiresIn: '14d'});
-                return res.status(200).json({status: 200, token: token});
+                return res.status(200).json({error: null, token: token});
             })
             .catch(err => {
-                return res.status(400).json({error: err});
+                return res.status(500).json({error: 'Server error'});
             })
         } else {
             let response = {
                 status: 400,
+                error: 'Validations errors',
                 errors: errors.mapped(),
                 oldData: req.body
             }
@@ -240,12 +241,12 @@ const usersController = {
             })
             .then((user) => {
                 if(user == null) {
-                    res.status(401).json({status: 401, error: 'Incorrect or expired token'});
+                    res.status(401).json({error: 'Incorrect or expired token'});
                 }
-                res.status(200).json({status: 200, message: 'Valid token.', token: token});
+                res.status(200).json({error: null, message: 'Valid token.', token: token});
             })
             .catch((err) => {
-                return res.status(400).json({status: 400, message: 'Error verifying token', error: err})
+                return res.status(500).json({error: 'Server error'})
             })
         })
     }

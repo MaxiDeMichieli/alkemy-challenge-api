@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const {signUp, activateAccount, logIn, checkToken, forgotPassword, resetPassword, resetPasswordCheckToken} = require('../controllers/usersController');
+const {signUp, activateAccount, logIn, checkToken, forgotPassword, resetPassword, resetPasswordCheckToken, deleteUser} = require('../controllers/usersController');
+const {isAuth} = require('../middleware/auth');
 const signUpValidations = require('../validations/signUpValidations');
 const logInValidations = require('../validations/logInValidations');
 const resetPasswordValidations = require('../validations/resetPasswordValidations');
@@ -19,5 +20,9 @@ router.post('/check-token', checkToken);
 router.patch('/forgot-password', forgotPassword);
 router.patch('/reset-password', resetPasswordValidations, resetPassword);
 router.post('/reset-password/check-token', resetPasswordCheckToken);
+
+/* DELETE USER */
+router.delete('/delete', isAuth, deleteUser);
+
 
 module.exports = router;

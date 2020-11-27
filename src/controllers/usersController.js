@@ -11,7 +11,7 @@ const usersController = {
         const {first_name, last_name, email, password} = req.body;
         let errors = validationResult(req);
         if(errors.isEmpty()){
-            const token = jwt.sign({first_name, last_name, email, password}, process.env.JWT_ACC_ACTIVATE, {expiresIn: '20m'});
+            const token = jwt.sign({first_name, last_name, email, password: bcrypt.hashSync(password, 12)}, process.env.JWT_ACC_ACTIVATE, {expiresIn: '20m'});
 
             let mailOptions = {
                 from: `ALK <${process.env.MAIL_USER}>`,
@@ -59,7 +59,7 @@ const usersController = {
                         first_name: first_name.trim(),
                         last_name: last_name.trim(),
                         email: email.trim(),
-                        password: bcrypt.hashSync(password, 12)
+                        password: password
                     }
                 })
                 .then((user) => {
@@ -248,6 +248,30 @@ const usersController = {
             .catch((err) => {
                 return res.status(500).json({error: 'Server error'})
             })
+        })
+    },
+    deleteUser: (req, res) => {
+        const {id} = req.user;
+
+        let deleteOperations = db.Operations.destroy({
+            where:{
+            user_id: id
+        }})
+        let deleteUser = db.Users.destroy({
+            where: {
+                id: id
+            }
+        })
+        Promise.all([deleteOperations, deleteUser]) 
+        .then(result => {
+            if(result[1] == 0) {
+                return res.status(400).json({error: 'No user found to delete'})
+            } else {
+                return res.status(200).json({error: null, message: 'User removed successfully.'})
+            }
+        })
+        .catch(err => {
+            return res.status(500).json({error: 'Server error'})
         })
     }
 }

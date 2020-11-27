@@ -19,7 +19,7 @@ const operationsController = {
             user_id: id
         })
         .then(result => {
-            res.status(200).json({error: null, ...result});
+            res.status(200).json({error: null, operation: result.dataValues});
         })
         .catch(err => {
             res.status(500).json({error: 'Server error'})
@@ -157,7 +157,7 @@ const operationsController = {
             user_id: id
         }})
         .then(result => {
-            if(result == 1) {
+            if(result != 0) {
                 return res.status(200).json({error: null, message: 'Operation removed successfully.'})
             } else {
                 return res.status(400).json({error: 'There is no operation with that id.'})

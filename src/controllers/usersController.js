@@ -217,10 +217,14 @@ const usersController = {
         }
     },
     checkToken: (req, res) => {
-        const {token} = req.body;
+        if(!req.headers.authorization) {
+            return res.status(401).json({status: 401, error: "You don't have authorization"})
+        }
+        
+        const token = req.headers.authorization.split(' ')[1]
         jwt.verify(token, process.env.USER_TOKEN_KEY, (err, decodedToken) => {
             if(err) {
-                return res.status(401).json({error: 'Incorrect or expired token'})
+                return res.status(401).json({error: "Invalid or expired token. You don't have authorization"})
             }
             const{id, first_name, last_name, email, password, social_id} = decodedToken;
             db.Users.findOne({
@@ -235,9 +239,9 @@ const usersController = {
             })
             .then((user) => {
                 if(user == null) {
-                    res.status(401).json({error: 'Incorrect or expired token'});
+                    return res.status(401).json({error: 'Incorrect or expired token'});
                 }
-                res.status(200).json({error: null, message: 'Valid token.', token: token});
+                return res.status(200).json({error: null, message: 'Valid token.', token: token});
             })
             .catch((err) => {
                 return res.status(500).json({error: 'Server error'})

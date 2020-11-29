@@ -69,7 +69,7 @@ const operationsController = {
             let response = {
                 error: null,
                 nextPage: `${req.protocol}://${req.get('host')}/api/operations/list?limit=${limit}&offset=${nextPage}`,
-                opearations: operationsMapped
+                operations: operationsMapped
             }
             return res.status(200).json(response)
         })

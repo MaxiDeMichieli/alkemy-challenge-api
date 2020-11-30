@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {createOp, listAll, listOne, editOp, deleteOp} = require('../controllers/operationsController');
+const {createOp, listAll, listOne, editOp, deleteOp, balance} = require('../controllers/operationsController');
 const {isAuth} = require('../middleware/auth');
 const createValidations = require('../validations/createOperationValidations');
 const editValidations = require('../validations/editOperationValidations');
@@ -13,6 +13,9 @@ router.get('/list', isAuth, listAll);
 
 /* LIST ONE OPERATION */
 router.get('/list/:id', isAuth, listOne);
+
+/* CURRENT BALANCE */
+router.get('/balance', isAuth, balance);
 
 /* EDIT OPERATION */
 router.patch('/edit/:id', isAuth, editValidations, editOp);

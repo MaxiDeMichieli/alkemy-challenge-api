@@ -112,6 +112,46 @@ const operationsController = {
             return res.status(500).json({error: 'Server error'})
         })
     },
+    balance: (req, res) => {
+        const {id} = req.user;
+
+        db.Operations.findAll({
+            where: {
+                user_id: id
+            }
+        })
+        .then(operations => {
+            if(operations == 0) {
+                return res.status(200).json({error: null, message: 'You still dont have any operation'})
+            }
+            
+            let incomes = 0;
+            let expenses = 0;
+            let incomesBalance = 0;
+            let expensesBalance = 0;
+
+            let amounts = operations.map(op => {
+                if(op.type_id == 1) {
+                    incomes++
+                    incomesBalance = incomesBalance + op.amount
+                    return op.amount
+                } else if (op.type_id == 2) {
+                    expenses++
+                    expensesBalance = expensesBalance - op.amount
+                    return Number('-' + op.amount)
+                }
+            })
+
+            let balance = amounts.reduce((acum, amount) => {
+                return acum + amount
+            })
+
+            return res.status(200).json({error: null, balance, incomes, expenses, incomesBalance, expensesBalance})
+        })
+        .catch(err => {
+            return res.status(500).json({error: 'Server error'})
+        })
+    },
     editOp: (req, res) => {
         let errors = validationResult(req);
 

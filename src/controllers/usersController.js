@@ -99,7 +99,7 @@ const usersController = {
                 from: `ALK <${process.env.MAIL_USER}>`,
                 to: email,
                 subject: 'Recupera tu cuenta de alk',
-                html: `<div class="body" style="width: 80%;max-width:700px;heigth: 100%;padding: 30px;margin: 0 auto;background-color: #222831;border-radius: 10px;"><h2 style="color:#fff;">Hola ${first_name}!</h2><h3 style="text-align: center;color:#fff;">Cambia tu contraseña haciendo click en el siguiente boton:</h3><div class="boton" style="display: flex;flex-wrap: wrap;align-content: center;"><a href="${process.env.CLIENT_URL}/resetpassword/${token}" style="display: inline-block;margin: 0 auto;margin-top: 10px;padding: 8px 15px;background-color: #F05454;text-decoration: none;color: #fff;border: 2px solid #F05454;border-radius: 10px;box-shadow: 1px 1px 4px 0px #000;font-weight: 600">Cambiar contraseña</a></div></div>`
+                html: `<div class="body" style="width: 80%;max-width:700px;heigth: 100%;padding: 30px;margin: 0 auto;background-color: #222831;border-radius: 10px;"><h2 style="color:#fff;">Hola ${user.first_name}!</h2><h3 style="text-align: center;color:#fff;">Cambia tu contraseña haciendo click en el siguiente boton:</h3><div class="boton" style="display: flex;flex-wrap: wrap;align-content: center;"><a href="${process.env.CLIENT_URL}/resetpassword/${token}" style="display: inline-block;margin: 0 auto;margin-top: 10px;padding: 8px 15px;background-color: #F05454;text-decoration: none;color: #fff;border: 2px solid #F05454;border-radius: 10px;box-shadow: 1px 1px 4px 0px #000;font-weight: 600">Cambiar contraseña</a></div></div>`
             }
             db.Users.update({
                 reset_link: token
